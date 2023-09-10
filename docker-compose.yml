@@ -1,5 +1,17 @@
 version: "3"
 services:
+
+  panel:
+    build:
+      context: ./panel
+      dockerfile: Dockerfile
+    depends_on:
+      - fastapi-app
+    container_name: panel
+    ports:
+      - "3010:3000"
+    networks:
+      - project-network
   fastapi-app:
     build:
       context: ./api
@@ -7,7 +19,7 @@ services:
     depends_on:
       - postgres
     ports:
-      - "8090:8000"
+      - "8010:8000"
     container_name: fastapi
     volumes:
       - ./api/media:/opt/pdd/media
@@ -29,10 +41,10 @@ services:
     container_name: postgres-main
     environment:
       POSTGRES_USER: konstantin
-      POSTGRES_PASSWORD: kali
-      POSTGRES_DB: pdd
+      POSTGRES_PASSWORD: Lp2nZxYOCcPhzrXj
+      POSTGRES_DB: school
     ports:
-      - "5433:5432"
+      - "5410:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
