@@ -1,0 +1,5 @@
+videos/*
+!videos/__init__.py
+
+previews/*
+!previews/__init__.py

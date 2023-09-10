@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "belofflab-store-api"
+version = "0.1.0"
+description = ""
+authors = ["Константин Белов <belofflab@gmail.com>"]
+readme = "README.md"
+packages = [{include = "scripts"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.87.0"
+alembic = "^1.8.1"
+uvicorn = "^0.19.0"
+ormar = "^0.12.0"
+aiosqlite = "^0.17.0"
+python-dotenv = "^0.21.0"
+asyncpg = "^0.27.0"
+psycopg2-binary = "^2.9.5"
+python-multipart = "^0.0.5"
+fastapi-utils = "^0.2.1"
+jinja2 = "^3.1.2"
+pyjwt = "^2.8.0"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+aiogram = "^2.25.1"
+pyotp = "^2.9.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+fastapi-app = "scripts.application:start_fastapi"

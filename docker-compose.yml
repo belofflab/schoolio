@@ -1,0 +1,46 @@
+version: "3"
+services:
+  fastapi-app:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    ports:
+      - "8090:8000"
+    container_name: fastapi
+    volumes:
+      - ./api/media:/opt/pdd/media
+    networks:
+      - project-network
+
+  telegram-bot:
+    build:
+      context: './bot'
+      dockerfile: Dockerfile
+    depends_on:
+      - fastapi-app
+    container_name: telegram-pdd-bot
+    networks:
+      - project-network
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres-main
+    environment:
+      POSTGRES_USER: konstantin
+      POSTGRES_PASSWORD: kali
+      POSTGRES_DB: pdd
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - project-network
+
+networks:
+  project-network:
+
+volumes:
+  postgres_data:
+  fastapi_data:
