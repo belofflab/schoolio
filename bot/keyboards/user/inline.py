@@ -74,7 +74,7 @@ def show_lesson(course: int, lesson: str, user_id: int):
     markup.add(
         InlineKeyboardButton(
             "Посмотреть",
-            web_app=WebAppInfo(url=f"""https://{DOMAIN}/courses/{course}/lesson_blocks/{lesson}/show?access={token}""")
+            web_app=WebAppInfo(url=f"""https://{DOMAIN}/api/v1/courses/{course}/lesson_blocks/{lesson}/show?access={token}""")
         )
     )
 
