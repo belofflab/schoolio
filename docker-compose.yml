@@ -6,7 +6,7 @@ services:
       context: ./panel
       dockerfile: Dockerfile
     depends_on:
-      - fastapi-app
+      - schoolio_backend
     container_name: schoolio_frontend
     ports:
       - "3100:3000"
@@ -17,7 +17,7 @@ services:
       context: ./api
       dockerfile: Dockerfile
     depends_on:
-      - postgres
+      - schoolio_db
     ports:
       - "8100:8000"
     container_name: schoolio_backend
@@ -31,7 +31,7 @@ services:
       context: './bot'
       dockerfile: Dockerfile
     depends_on:
-      - fastapi-app
+      - schoolio_backend
     container_name: schoolio_telebot
     networks:
       - project-network
