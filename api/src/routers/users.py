@@ -53,10 +53,10 @@ async def signin(user: UserCreate):
             detail=f"Сначала вам нужно зарегистровать аккаунт с ID: {user.idx}",
         )
 
-    if not hashing.Hasher.verify_password(user.password, q_user.password):
-        return HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Неверная почта или пароль"
-        )
+    # if not hashing.Hasher.verify_password(user.password, q_user.password):
+    #     return HTTPException(
+    #         status_code=status.HTTP_403_FORBIDDEN, detail="Неверная почта или пароль"
+    #     )
 
     access_token =  tokenizator.create(
         user_id=q_user.idx, is_admin=q_user.is_admin, is_active=q_user.is_active

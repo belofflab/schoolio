@@ -1,44 +1,44 @@
 version: "3"
 services:
 
-  panel:
+  schoolio_frontend:
     build:
       context: ./panel
       dockerfile: Dockerfile
     depends_on:
       - fastapi-app
-    container_name: panel
+    container_name: schoolio_frontend
     ports:
-      - "3010:3000"
+      - "3100:3000"
     networks:
       - project-network
-  fastapi-app:
+  schoolio_backend:
     build:
       context: ./api
       dockerfile: Dockerfile
     depends_on:
       - postgres
     ports:
-      - "8010:8000"
-    container_name: fastapi
+      - "8100:8000"
+    container_name: schoolio_backend
     volumes:
       - ./api/media:/opt/pdd/media
     networks:
       - project-network
 
-  telegram-bot:
+  schoolio_telebot:
     build:
       context: './bot'
       dockerfile: Dockerfile
     depends_on:
       - fastapi-app
-    container_name: telegram-pdd-bot
+    container_name: schoolio_telebot
     networks:
       - project-network
 
-  postgres:
+  schoolio_db:
     image: postgres:latest
-    container_name: postgres-main
+    container_name: schoolio_db
     environment:
       POSTGRES_USER: konstantin
       POSTGRES_PASSWORD: Lp2nZxYOCcPhzrXj
@@ -55,4 +55,4 @@ networks:
 
 volumes:
   postgres_data:
-  fastapi_data:
+  schoolio_data:

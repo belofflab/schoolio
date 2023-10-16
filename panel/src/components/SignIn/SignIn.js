@@ -20,7 +20,7 @@ export default function SignIn({ onRegisterClick, handleModal }) {
 
     const { success, loading, error } = useSelector((state) => state.auth)
 
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
     useEffect(() => {
         if (success) {
             handleModal(false);
