@@ -3,14 +3,19 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux'
 import { getCourses } from '../../store/courses/courses.actions'
 
-function Course(props) {
+function Course({authenticated}) {
 
     const dispatch = useDispatch();
     const { loading, error, courses } = useSelector((state) => state.course)
 
     useEffect(() => {
-        dispatch(getCourses())
-    }, [dispatch])
+        console.log(authenticated)
+        if (authenticated) {
+            dispatch(getCourses())
+            console.log(courses)
+        }
+
+    }, [dispatch, authenticated])
 
 
     if (loading) {

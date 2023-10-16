@@ -37,7 +37,7 @@ function Navbar() {
     }
 
     return (
-        <AppBar position="static" sx={{ backgroundColor: '#060d2a', height: 130 }}>
+        <AppBar position="static" sx={{ backgroundColor: '#00593C', height: 130 }}>
             <Container maxWidth="xl">
                 <Toolbar sx={{ top: '50%' }} disableGutters>
                     <Typography
@@ -54,7 +54,7 @@ function Navbar() {
                             textDecoration: 'none',
                         }}
                     >
-                        Beloff
+                        Академия Белова
                     </Typography>
 
 
