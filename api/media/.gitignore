@@ -3,3 +3,6 @@ videos/*
 
 previews/*
 !previews/__init__.py
+
+receipts/*
+!receipts/__init__.py

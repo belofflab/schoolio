@@ -5,7 +5,7 @@ from fastapi.responses import StreamingResponse
 from ormar.exceptions import NoMatch
 from src.database import models
 from src.middleware import admin, auth
-from src.schemas import Course, CourseCreate, LessonBlock, LessonBlockCreate
+from src.schemas import Course, CourseCreate, LessonBlock, LessonBlockCreate, UserCourse
 from src.utils import files, tokenizator
 
 router = APIRouter(prefix="/api/v1/courses", tags=["Курсы"])
@@ -22,7 +22,7 @@ async def is_student_or_admin(request: Request, course: Course):
     )
     if not is_user_course and not is_admin:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Этот курс ещё не приобретён"
+            status_code=status.HTTP_403_FORBIDDEN, detail=f"Этот курс ещё не приобретён#{course.price}"
         )
 
 
@@ -43,6 +43,23 @@ async def get_course(course: int, request: Request) -> Union[Course, HTTPExcepti
 
     return current_course
 
+
+@router.post("/{course}/user/{user}/", dependencies=[Depends(admin.AdminBearer())])
+async def enroll_course_to_user(course: int, user: int) -> Union[Course, HTTPException]:
+    current_course = await models.Course.objects.get_or_none(idx=course)
+    current_user = await models.User.objects.get_or_none(idx=user)
+    if not current_course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Курс не был найден"
+        )
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не был найден"
+        )
+
+    await models.UserCourse.objects.create(user=current_user, course=current_course)
+
+    return current_course
 
 @router.get("/{course}/lesson_blocks/", dependencies=[Depends(auth.JWTBearer())])
 async def get_lesson_blocks(
@@ -65,7 +82,9 @@ async def get_lesson_blocks(
         return current_course
 
 
-@router.get("/{course}/lesson_blocks/{lesson}/", dependencies=[Depends(auth.JWTBearer())])
+@router.get(
+    "/{course}/lesson_blocks/{lesson}/", dependencies=[Depends(auth.JWTBearer())]
+)
 async def get_lesson_block(
     request: Request, course: int, lesson: int
 ) -> Union[LessonBlock, HTTPException]:
@@ -98,7 +117,7 @@ async def create_course(
     course: CourseCreate = Depends(), preview: UploadFile = File(...)
 ) -> Union[Course, HTTPException]:
     if preview.content_type.split("/")[0] != "image":
-        return HTTPException(
+        raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
             detail="Некорректный формат обложки",
         )
@@ -141,7 +160,10 @@ async def create_lesson_block(
     return new_lesson_block
 
 
-@router.get("/{course}/lesson_blocks/{lesson_block}/video/", dependencies=[Depends(auth.JWTBearer())])
+@router.get(
+    "/{course}/lesson_blocks/{lesson_block}/video/",
+    dependencies=[Depends(auth.JWTBearer())],
+)
 async def get_lesson_block_video(request: Request, course: int, lesson_block: int):
     current_course = await models.Course.objects.select_related(
         "lesson_blocks"
@@ -159,7 +181,7 @@ async def get_lesson_block_video(request: Request, course: int, lesson_block: in
         raise HTTPException(
             status_code=404, detail="Учебный блок или видео не были найдены"
         )
-    
+
     await is_student_or_admin(request=request, course=current_course)
 
     video_path = current_lesson_block.video_url

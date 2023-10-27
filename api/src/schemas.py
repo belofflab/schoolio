@@ -48,3 +48,18 @@ class UserOTPVerify(BaseModel):
     idx: int
     password: str
     otp: str
+
+class UserPaymentRequestCreate(BaseModel):
+    user: int
+    course: int
+
+class UserPaymentRequest(UserPaymentRequestCreate):
+    idx: int 
+    is_success: bool
+    receipt: str
+    date: datetime.datetime
+
+class UserPaymentRequestPatch(BaseModel):
+    is_success: bool = False
+
+

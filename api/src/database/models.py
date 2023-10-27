@@ -83,3 +83,22 @@ class UserCourse(ormar.Model):
     user: User = ormar.ForeignKey(User)
     course: Course = ormar.ForeignKey(Course)
     purchased_at: datetime.datetime = ormar.DateTime(default=datetime.datetime.now)
+
+
+class UserPaymentRequest(ormar.Model):
+    class Meta(BaseMeta):
+        tablename="userpayment_requests"
+    idx: int = ormar.BigInteger(primary_key=True)
+    user: User = ormar.ForeignKey(User)
+    course: Course = ormar.ForeignKey(Course)
+    is_success: bool = ormar.Boolean(default=False)
+    receipt: str = ormar.String(max_length=1024, nullable=True)
+    date: datetime.datetime = ormar.DateTime(default=datetime.datetime.now)
+    
+
+# class PaymentDetail(ormar.Model):
+#     class Meta(BaseMeta):
+#         tablename = "payment_details"
+#     idx: int = ormar.BigInteger(primary_key=True)
+#     name: str = ormar.String(max_length=255)
+#     value: str = ormar.String(max_length=255)

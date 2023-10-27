@@ -4,8 +4,8 @@ import aiohttp
 from aiogram import types
 from data.config import DOMAIN
 from keyboards.user import inline as inline_keyboard
+from filters.is_chat_member import IsChatMember
 from loader import api_client, dp
-from decimal import Decimal
 
 
 async def fetch_photo_data(photo_url):
@@ -17,85 +17,62 @@ async def fetch_photo_data(photo_url):
                 return None
 
 
+WELCOME_MESSAGE = """
+Добро пожаловать, {full_name}!
+
+Тебя приветсвует наша <b>Лаборатория [name]</b>, где мы реализуем будущие таланты ;)
+"""
+
+FREE_MESSAGE = """
+Получите начальный вектор прямо сейчас! 
+
+<b>Начальный вектор</b> - точка, откуда нужно стартовать, чтобы стать квалифицированным специалистом в своей области. 
+
+На консультации мы
+
+✔️ Прорабатываем общую эрудицию и подбираем подходящую професиию
+✔️ Решаем текущие задачи
+✔️ Обучаем новым технологиям и подбираем личный <b>RoadMap</b>
+
+👨‍🏫 @belofflab
+"""
+
+
 @dp.message_handler(commands="start")
 async def start(
     message: Union[types.Message, types.CallbackQuery], course="None", **kwargs
 ) -> None:
     api_client.make_request(
         "POST",
-        endpoint="users/", user_id=message.from_user.id,
+        endpoint="users/",
+        user_id=message.from_user.id,
         data={"idx": message.from_user.id, "username": message.from_user.username},
     )
     if isinstance(message, types.Message):
         await message.answer_photo(
             photo=await fetch_photo_data("https://" + DOMAIN + "/media/banner.png"),
-            caption="Доступные курсы: ",
-            reply_markup=inline_keyboard.show_courses(user_id=message.from_user.id),
+            caption=WELCOME_MESSAGE.format(full_name=message.from_user.full_name),
+            reply_markup=inline_keyboard.menu(),
         )
     elif isinstance(message, types.CallbackQuery):
         message: types.CallbackQuery
         new_media = types.InputMediaPhoto(
-            media="https://" + DOMAIN + "/media/banner.png", caption="Доступные курсы: "
+            media="https://" + DOMAIN + "/media/banner.png",
+            caption=WELCOME_MESSAGE.format(full_name=message.from_user.full_name),
         )
         await message.message.edit_media(
-            media=new_media, reply_markup=inline_keyboard.show_courses(user_id=message.from_user.id)
+            media=new_media,
+            reply_markup=inline_keyboard.menu(),
         )
 
 
-async def list_lessons(callback: types.CallbackQuery, course, **kwargs):
-    status, course_detail = api_client.make_request(
-        method="GET", endpoint=f"courses/{course}/", user_id=callback.from_user.id
-    )
-    if not status: return await callback.answer("Курс не найден")
-    price = Decimal(course_detail.get("price"))
-    price_15 = (price / 100) * 15
-
-    new_media = types.InputMediaPhoto(
-        media=f"https://{DOMAIN}/{course_detail.get('preview')}",
-        caption=f"""
-Курс: <b>{course_detail.get("title")}</b>
-
-<b>{course_detail.get("description")}</b>
-
-Цена: <s>{price + price_15}</s> {course_detail.get("price")}₽
-""",
-    )
-    await callback.message.edit_media(
-        media=new_media, reply_markup=inline_keyboard.show_lessons(course=course, user_id=callback.from_user.id)
-    )
-
-
-async def show_lesson(callback: types.CallbackQuery, course, lesson):
-    status, lesson_detail = api_client.make_request(
-        method="GET",
-        endpoint=f"courses/{course}/lesson_blocks/{lesson}/",
-        user_id=callback.from_user.id
-    )
-    if not status: return await callback.answer("Уроки не найдены")
-    new_media = types.InputMediaPhoto(
-        media=f"https://{DOMAIN}/{lesson_detail.get('preview')}",
-        caption=f"""
-В этом блоке: <b>{lesson_detail.get("title")}</b>
-
-<b>{lesson_detail.get("description")}</b>
-""",
-    )
-    await callback.message.edit_media(
-        media=new_media,
-        reply_markup=inline_keyboard.show_lesson(
-            course=course, lesson=lesson, user_id=callback.from_user.id
+@dp.callback_query_handler(lambda c: c.data == "free")
+async def free(callback: types.CallbackQuery):
+    await callback.message.edit_caption(
+        caption=FREE_MESSAGE,
+        reply_markup=types.InlineKeyboardMarkup(row_width=1).add(
+            types.InlineKeyboardButton(
+                text="Назад", callback_data=inline_keyboard.make_courses_cd(0)
+            )
         ),
     )
-
-
-@dp.callback_query_handler(inline_keyboard.courses_cd.filter())
-async def courses_navigate(callback: types.CallbackQuery, callback_data: dict):
-    level = callback_data.get("level")
-    course = callback_data.get("course")
-    lesson = callback_data.get("lesson")
-
-    levels = {"0": start, "1": list_lessons, "2": show_lesson}
-
-    current_level_function = levels[level]
-
-    await current_level_function(callback, course=course, lesson=lesson)
