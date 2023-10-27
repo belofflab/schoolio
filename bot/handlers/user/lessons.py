@@ -3,9 +3,9 @@ from keyboards.user import inline as inline_keyboard
 from filters.is_chat_member import IsChatMember
 from loader import api_client, dp, bot
 from data.config import API_URL, BASE_DIR, CHANNEL_ID, DOMAIN
-from decimal import Decimal
 import uuid
 import requests
+from filters.is_admin import IsAdmin
 import os
 from aiogram.dispatcher import FSMContext
 from states.buy_course import BuyCourse
@@ -118,7 +118,7 @@ async def control_user_payment_receipt(
     os.remove(output_file)
 
 
-@dp.callback_query_handler(lambda c: c.data.startswith("patch_payment_request"))
+@dp.callback_query_handler(IsAdmin(), lambda c: c.data.startswith("patch_payment_request"))
 async def deposit_request_confirm(callback: types.CallbackQuery):
     splitted_data = callback.data.split("#")
     move = splitted_data[1]
