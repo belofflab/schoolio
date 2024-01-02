@@ -81,7 +81,7 @@ def show_lessons(course: int, user_id: int):
                     callback_data=make_courses_cd(
                         level=CURRENT_LEVEL + 1,
                         course=course,
-                        lesson=lesson_block.get("idx"),
+                        lesson=lesson_block.get("order"),
                     ),
                 )
             )
