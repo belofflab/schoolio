@@ -37,7 +37,7 @@ async def shutdown():
         await database.disconnect()
 
 
-@app.get("/api/v1/courses/{course}/lesson_blocks/{lesson_block}/show")
+@app.get("/api/v1/courses/{course}/lesson_blocks/{lesson}/show")
 async def show_lesson_block(
     request: Request, course: int, lesson: int, access: str
 ):
