@@ -22,7 +22,8 @@ async def is_student_or_admin(request: Request, course: Course):
     )
     if not is_user_course and not is_admin:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail=f"Этот курс ещё не приобретён#{course.price}"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Этот курс ещё не приобретён#{course.price}",
         )
 
 

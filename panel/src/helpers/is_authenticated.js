@@ -11,6 +11,5 @@ export const isAuthenticated = () => {
         user_data = {}
     }
     var time_now = (new Date()).getTime() / 1000
-
     return user_data["expires_in"] >= time_now
 }

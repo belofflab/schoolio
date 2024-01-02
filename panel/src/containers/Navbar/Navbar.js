@@ -56,8 +56,6 @@ function Navbar() {
                     >
                         Академия Белова
                     </Typography>
-
-
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                         <IconButton
                             size="large"
