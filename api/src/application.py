@@ -39,24 +39,27 @@ async def shutdown():
 
 @app.get("/api/v1/courses/{course}/lesson_blocks/{lesson_block}/show")
 async def show_lesson_block(
-    request: Request, course: int, lesson_block: int, access: str
+    request: Request, course: int, lesson: int, access: str
 ):
     # TODO: Make user access to video (Add security)
     is_auth = tokenizator.check(access)
     if not is_auth:
         return HTTPException(status_code=403, detail="Невалидный токен")
-    try:
-        s_course = await models.Course.objects.prefetch_related("lesson_blocks").get(
-            idx=course
+    s_course = await models.Course.objects.prefetch_related("lesson_blocks").get_or_none(
+        idx=course
+    )
+    if not s_course:
+        raise HTTPException(
+            status_code=404, detail="Данный курс не был найден"
         )
-    except ormar.exceptions.NoMatch:
-        return HTTPException(404, detail="Запрашиваемый курс не был найден")
-    try:
-        lesson = await models.LessonBlock.objects.get(idx=lesson_block)
-        if lesson not in s_course.lesson_blocks:
-            return HTTPException(404, detail="Запрашиваемое видео не было найдено")
-    except ormar.exceptions.NoMatch:
-        return HTTPException(404, detail="Запрашиваемое видео не было найдено")
+    lesson_block = next(
+        (block for block in s_course.lesson_blocks if block.order == lesson), None
+    )
+    if not lesson_block:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Учебный блок курса «{s_course.title}» не был найден",
+        )
     return templates.TemplateResponse(
         "video.html",
         {"request": request, "lesson": lesson, "course": course, "access": access, "lesson_block": lesson_block},
